@@ -14,9 +14,9 @@
 ### 🐳 Docker用户
 **我想用Docker部署**
 1. 🐳 [Docker部署指南](DOCKER_DEPLOY.md) - **完整部署方案**
-2. 🚀 运行命令：`./docker-run.sh run`
+2. 🚀 运行命令：`./docker/docker-run.sh run`
 3. 📊 查看状态：[部署成功报告](DEPLOYMENT_SUCCESS.md)
-4. 🔧 管理容器：`./docker-run.sh help`
+4. 🔧 管理容器：`./docker/docker-run.sh help`
 
 ### 👨‍💻 开发者
 **我想了解技术细节**
@@ -40,7 +40,7 @@
 | 文档 | 用途 | 阅读时间 | 难度 |
 |------|------|----------|------|
 | [QUICK_START.md](QUICK_START.md) | 3分钟快速上手 | 3分钟 | ⭐ |
-| [README.md](README.md) | 项目主文档 | 8分钟 | ⭐⭐ |
+| [README.md](../README.md) | 项目主文档 | 8分钟 | ⭐⭐ |
 
 ### 🐳 部署运维类
 | 文档 | 用途 | 阅读时间 | 难度 |
@@ -79,13 +79,13 @@ python3 flask-start.py
 # 容器化部署
 git clone https://github.com/ZengXitem/web-ssh-terminal.git
 cd web-ssh-terminal
-./docker-run.sh run
+./docker/docker-run.sh run
 ```
 📖 详细指南：[DOCKER_DEPLOY.md](DOCKER_DEPLOY.md)
 
 #### 📖 了解项目架构
 - **技术栈**：[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md#-技术栈)
-- **功能特性**：[README.md](README.md#-功能特性)
+- **功能特性**：[README.md](../README.md#-功能特性)
 - **文件结构**：[FILE_DESCRIPTIONS.md](FILE_DESCRIPTIONS.md#️-文件目录结构)
 
 #### 🔧 自定义和开发
@@ -94,7 +94,7 @@ cd web-ssh-terminal
 - **前端代码**：`backend/static/` 和 `backend/templates/`
 
 #### 🐛 解决问题
-- **常见问题**：[README.md](README.md#常见问题解决方案)
+- **常见问题**：[README.md](../README.md#常见问题解决方案)
 - **Docker问题**：[DOCKER_DEPLOY.md](DOCKER_DEPLOY.md#-故障排除)
 - **快速修复**：[QUICK_START.md](QUICK_START.md#-遇到问题)
 
@@ -109,7 +109,7 @@ cd web-ssh-terminal
 ### 📁 核心文件
 - **主应用**：`backend/app.py`
 - **启动脚本**：`flask-start.py`
-- **Docker脚本**：`docker-run.sh`
+- **Docker脚本**：`docker/docker-run.sh`
 - **依赖配置**：`requirements.txt`
 
 ### 🛠️ 常用命令
@@ -119,10 +119,10 @@ python3 flask-start.py      # 启动应用
 python3 backend/reset_db.py # 重置数据
 
 # Docker管理
-./docker-run.sh run         # 启动容器
-./docker-run.sh status      # 查看状态
-./docker-run.sh logs        # 查看日志
-./docker-run.sh clean       # 清理重建
+./docker/docker-run.sh run         # 启动容器
+./docker/docker-run.sh status      # 查看状态
+./docker/docker-run.sh logs        # 查看日志
+./docker/docker-run.sh clean       # 清理重建
 ```
 
 ---
@@ -131,7 +131,7 @@ python3 backend/reset_db.py # 重置数据
 
 ### 🔍 查找信息的优先级
 1. **快速问题** → [QUICK_START.md](QUICK_START.md)
-2. **功能使用** → [README.md](README.md)
+2. **功能使用** → [README.md](../README.md)
 3. **Docker部署** → [DOCKER_DEPLOY.md](DOCKER_DEPLOY.md)
 4. **技术细节** → [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)
 5. **文件结构** → [FILE_DESCRIPTIONS.md](FILE_DESCRIPTIONS.md)
@@ -161,11 +161,11 @@ python3 backend/reset_db.py # 重置数据
 1. ✅ 完成5分钟体验路径
 2. 📖 阅读 [QUICK_START.md](QUICK_START.md)
 3. 🔧 尝试不同功能（连接测试、终端操作）
-4. 🐳 体验Docker部署 `./docker-run.sh run`
+4. 🐳 体验Docker部署 `./docker/docker-run.sh run`
 
 ### 🎓 30分钟精通路径
 1. ✅ 完成10分钟掌握路径
-2. 📚 深度阅读 [README.md](README.md)
+2. 📚 深度阅读 [README.md](../README.md)
 3. 🔍 了解文件结构 [FILE_DESCRIPTIONS.md](FILE_DESCRIPTIONS.md)
 4. 🛠️ 尝试自定义配置和开发
 

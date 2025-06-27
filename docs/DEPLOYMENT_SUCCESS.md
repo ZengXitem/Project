@@ -28,20 +28,20 @@ ssh_data             local
 ## 🛠️ 创建的Docker文件
 
 ### 核心文件
-1. **`Dockerfile`** - 本地代码构建镜像
-2. **`docker-run.sh`** - 一键部署脚本 ⭐
-3. **`docker-compose.yml`** - Docker Compose配置
-4. **`nginx.conf`** - Nginx反向代理配置
-5. **`.dockerignore`** - Docker忽略文件
+1. **`docker/Dockerfile`** - 本地代码构建镜像
+2. **`docker/docker-run.sh`** - 一键部署脚本 ⭐
+3. **`docker/docker-compose.yml`** - Docker Compose配置
+4. **`docker/nginx.conf`** - Nginx反向代理配置
+5. **`docker/.dockerignore`** - Docker忽略文件
 
 ### GitHub版本文件
-6. **`Dockerfile.github`** - 从GitHub仓库构建镜像
-7. **`docker-github.sh`** - GitHub版本部署脚本
-8. **`docker-github-fixed.sh`** - 修复版GitHub脚本
+6. **`docker/Dockerfile.github`** - 从GitHub仓库构建镜像
+7. **`docker/docker-github.sh`** - GitHub版本部署脚本
+8. **`docker/docker-github-fixed.sh`** - 修复版GitHub脚本
 
 ### 文档文件
-9. **`DOCKER_DEPLOY.md`** - 详细部署指南
-10. **`DEPLOYMENT_SUCCESS.md`** - 本文档
+9. **`docs/DOCKER_DEPLOY.md`** - 详细部署指南
+10. **`docs/DEPLOYMENT_SUCCESS.md`** - 本文档
 
 ## 🎯 部署方式对比
 
@@ -56,30 +56,33 @@ ssh_data             local
 ### 基本操作
 ```bash
 # 查看状态
-./docker-run.sh status
+./docker/docker-run.sh status
 
 # 查看日志
-./docker-run.sh logs
+./docker/docker-run.sh logs
 
 # 重启容器
-./docker-run.sh restart
+./docker/docker-run.sh restart
 
 # 停止容器
-./docker-run.sh stop
+./docker/docker-run.sh stop
 
 # 进入容器调试
-./docker-run.sh shell
+./docker/docker-run.sh shell
 ```
 
 ### 高级操作
 ```bash
 # 使用Docker Compose
+cd docker
 docker-compose up -d
 
 # 带Nginx代理（80端口访问）
+cd docker
 docker-compose --profile with-nginx up -d
 
 # 手动构建镜像
+cd docker
 docker build -t web-ssh-terminal .
 ```
 
@@ -111,8 +114,8 @@ kill -9 <PID>
 docker logs web-ssh-terminal
 
 # 重新构建镜像
-./docker-run.sh clean
-./docker-run.sh run
+./docker/docker-run.sh clean
+./docker/docker-run.sh run
 ```
 
 ## 🌟 成功特性
@@ -140,6 +143,7 @@ docker logs web-ssh-terminal
 docker run -p 127.0.0.1:5555:5555 ...
 
 # 使用HTTPS（配置SSL证书）
+cd docker
 docker-compose --profile with-nginx up -d
 ```
 

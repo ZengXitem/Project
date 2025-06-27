@@ -8,27 +8,27 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## 🧭 快速导航
-**第一次使用？** → [📚 快速入门指南](QUICK_START.md) | **项目概览** → [📊 完整概览](PROJECT_OVERVIEW.md) | **文档索引** → [🧭 项目导航](NAVIGATION.md) | **文件说明** → [📁 文件结构](FILE_DESCRIPTIONS.md)
+**第一次使用？** → [📚 快速入门指南](docs/QUICK_START.md) | **项目概览** → [📊 完整概览](docs/PROJECT_OVERVIEW.md) | **文档索引** → [🧭 项目导航](docs/NAVIGATION.md) | **文件说明** → [📁 文件结构](docs/FILE_DESCRIPTIONS.md)
 
 ## 📋 快速导航
 
 | 🎯 我想要... | 📖 查看文档 | 🚀 直接操作 |
 |-------------|------------|------------|
-| **快速开始使用** | [快速入门指南](QUICK_START.md) | `python3 flask-start.py` |
-| **Docker部署** | [Docker部署指南](DOCKER_DEPLOY.md) | `./docker-run.sh run` |
-| **了解文件结构** | [文件说明文档](FILE_DESCRIPTIONS.md) | [项目结构](#-项目结构) |
+| **快速开始使用** | [快速入门指南](docs/QUICK_START.md) | `python3 flask-start.py` |
+| **Docker部署** | [Docker部署指南](docs/DOCKER_DEPLOY.md) | `./docker/docker-run.sh run` |
+| **了解文件结构** | [文件说明文档](docs/FILE_DESCRIPTIONS.md) | [项目结构](#-项目结构) |
 | **功能特性介绍** | [功能特性](#-功能特性) | [在线演示](http://localhost:5555) |
-| **遇到问题** | [故障排除](#-故障排除) | [常见问题解答](#常见问题解决方案) |
-| **技术架构** | [项目总结](PROJECT_SUMMARY.md) | [核心文件说明](FILE_DESCRIPTIONS.md#-核心文件详解) |
+| **遇到问题** | [故障排除](#-故障排除) | [常见问题解决方案](#常见问题解决方案) |
+| **技术架构** | [项目总结](docs/PROJECT_SUMMARY.md) | [核心文件说明](docs/FILE_DESCRIPTIONS.md#-核心文件详解) |
 | **API接口** | [API文档](#api接口) | [WebSocket事件](#websocket事件) |
 | **安全说明** | [安全配置](#安全说明) | [生产部署](#生产环境部署) |
 
 ### 🎯 文档导航索引
-- **📚 [快速入门指南](QUICK_START.md)** - 3分钟快速上手
-- **📁 [文件说明文档](FILE_DESCRIPTIONS.md)** - 详细文件结构和作用
-- **🐳 [Docker部署指南](DOCKER_DEPLOY.md)** - 完整容器化部署方案
-- **📝 [项目技术总结](PROJECT_SUMMARY.md)** - 详细技术架构和实现
-- **🎉 [部署成功报告](DEPLOYMENT_SUCCESS.md)** - Docker部署状态确认
+- **📚 [快速入门指南](docs/QUICK_START.md)** - 3分钟快速上手
+- **📁 [文件说明文档](docs/FILE_DESCRIPTIONS.md)** - 详细文件结构和作用
+- **🐳 [Docker部署指南](docs/DOCKER_DEPLOY.md)** - 完整容器化部署方案
+- **📝 [项目技术总结](docs/PROJECT_SUMMARY.md)** - 详细技术架构和实现
+- **🎉 [部署成功报告](docs/DEPLOYMENT_SUCCESS.md)** - Docker部署状态确认
 
 ## 🎯 项目简介
 
@@ -68,7 +68,7 @@ git clone https://github.com/ZengXitem/web-ssh-terminal.git
 cd web-ssh-terminal
 
 # Docker一键部署
-./docker-run.sh run
+./docker/docker-run.sh run
 ```
 **🎉 完成！** 访问 http://localhost:5555
 
@@ -171,22 +171,39 @@ python3 app.py
 ## 📁 项目结构
 
 ```
-Project/
-├── backend/
-│   ├── app.py              # Flask主应用
-│   ├── templates/
-│   │   └── index.html      # HTML模板
-│   ├── static/
-│   │   ├── style.css       # CSS样式
-│   │   └── script.js       # JavaScript逻辑
-│   ├── reset_db.py         # 数据库重置工具
-│   └── instance/
-│       ├── ssh_connections.db  # SQLite数据库
-│       └── encryption.key      # 加密密钥文件
-├── requirements.txt        # Python依赖（兼容版本）
-├── flask-start.py         # 一键启动脚本
-├── LICENSE                # MIT许可证
-└── README.md              # 项目文档
+web-ssh-terminal/
+├── 📁 backend/                    # 后端核心代码
+│   ├── 🐍 app.py                  # Flask主应用 [核心]
+│   ├── 📁 templates/
+│   │   └── 🌐 index.html          # HTML模板 [界面]
+│   ├── 📁 static/
+│   │   ├── 🎨 style.css           # CSS样式 [界面美化]
+│   │   └── ⚡ script.js           # JavaScript逻辑 [前端交互]
+│   ├── 🔧 reset_db.py             # 数据库重置工具 [维护]
+│   └── 📁 instance/               # 数据存储目录
+│       ├── 🗄️ ssh_connections.db  # SQLite数据库 [自动生成]
+│       └── 🔐 encryption.key      # 加密密钥 [自动生成]
+├── 🚀 flask-start.py             # 一键启动脚本 [推荐入口]
+├── 📋 requirements.txt           # Python依赖列表 [环境配置]
+├── 🐳 docker/                    # Docker相关文件
+│   ├── 📦 Dockerfile             # 本地Docker构建 [容器化]
+│   ├── 📦 Dockerfile.github      # GitHub Docker构建 [远程部署]
+│   ├── 🔧 docker-run.sh          # Docker部署脚本 [本地容器]
+│   ├── 🔧 docker-github.sh       # GitHub Docker脚本 [远程容器]
+│   ├── 🔧 docker-github-fixed.sh # 修复版GitHub脚本 [问题修复]
+│   ├── 🐙 docker-compose.yml     # Docker Compose配置 [编排]
+│   ├── 🌐 nginx.conf             # Nginx配置 [反向代理]
+│   └── 🚫 .dockerignore          # Docker忽略文件 [构建优化]
+├── 📚 docs/                      # 文档文件夹
+│   ├── 📝 PROJECT_SUMMARY.md     # 项目总结 [详细介绍]
+│   ├── 🐳 DOCKER_DEPLOY.md       # Docker部署指南 [容器部署]
+│   ├── 🎉 DEPLOYMENT_SUCCESS.md  # 部署成功总结 [状态报告]
+│   ├── 📁 FILE_DESCRIPTIONS.md   # 文件说明 [文件结构]
+│   ├── 🧭 NAVIGATION.md          # 项目导航 [文档索引]
+│   ├── 📊 PROJECT_OVERVIEW.md    # 项目概览 [完整信息]
+│   └── ⚡ QUICK_START.md         # 快速入门 [3分钟上手]
+├── 📖 README.md                  # 项目主文档 [入门必读]
+└── ⚖️ LICENSE                    # MIT许可证 [法律文件]
 ```
 
 ### 核心文件说明

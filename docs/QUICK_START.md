@@ -25,7 +25,7 @@ git clone https://github.com/ZengXitem/web-ssh-terminal.git
 cd web-ssh-terminal
 
 # 2. Docker部署
-./docker-run.sh run
+./docker/docker-run.sh run
 
 # 3. 访问应用
 # http://localhost:5555
@@ -80,7 +80,7 @@ python3 --version
 
 # 如果版本太低，安装Python 3.8+
 # 或使用Docker部署：
-./docker-run.sh run
+./docker/docker-run.sh run
 ```
 
 ### 问题3：依赖安装失败
@@ -110,10 +110,10 @@ Ctrl+C                      # 停止应用
 
 ### Docker控制
 ```bash
-./docker-run.sh run         # 启动容器
-./docker-run.sh stop        # 停止容器
-./docker-run.sh logs        # 查看日志
-./docker-run.sh status      # 查看状态
+./docker/docker-run.sh run         # 启动容器
+./docker/docker-run.sh stop        # 停止容器
+./docker/docker-run.sh logs        # 查看日志
+./docker/docker-run.sh status      # 查看状态
 ```
 
 ### 数据管理
@@ -148,7 +148,7 @@ python3 reset_db.py         # 重置数据库（清空所有连接）
 
 ## 🔗 更多资源
 
-- **📖 完整文档**：[README.md](README.md)
+- **📖 完整文档**：[README.md](../README.md)
 - **🐳 Docker指南**：[DOCKER_DEPLOY.md](DOCKER_DEPLOY.md)
 - **📁 文件说明**：[FILE_DESCRIPTIONS.md](FILE_DESCRIPTIONS.md)
 - **💻 GitHub仓库**：https://github.com/ZengXitem/web-ssh-terminal

@@ -10,7 +10,7 @@ Web SSH Terminal 提供了两种Docker部署方式，满足不同的使用场景
 
 ```bash
 # 下载GitHub版本部署脚本
-curl -O https://raw.githubusercontent.com/ZengXitem/web-ssh-terminal/main/docker-github.sh
+curl -O https://raw.githubusercontent.com/ZengXitem/web-ssh-terminal/main/docker/docker-github.sh
 chmod +x docker-github.sh
 
 # 一键部署
@@ -27,7 +27,7 @@ git clone https://github.com/ZengXitem/web-ssh-terminal.git
 cd web-ssh-terminal
 
 # 一键部署
-./docker-run.sh run
+./docker/docker-run.sh run
 ```
 
 ## 📋 部署方式对比
@@ -99,35 +99,35 @@ git clone https://github.com/ZengXitem/web-ssh-terminal.git
 cd web-ssh-terminal
 
 # 构建并运行
-./docker-run.sh run
+./docker/docker-run.sh run
 ```
 
 ### 常用命令
 
 ```bash
 # 构建并运行（默认）
-./docker-run.sh run
+./docker/docker-run.sh run
 
 # 仅构建镜像
-./docker-run.sh build
+./docker/docker-run.sh build
 
 # 查看运行状态
-./docker-run.sh status
+./docker/docker-run.sh status
 
 # 查看实时日志
-./docker-run.sh logs
+./docker/docker-run.sh logs
 
 # 停止服务
-./docker-run.sh stop
+./docker/docker-run.sh stop
 
 # 重启服务
-./docker-run.sh restart
+./docker/docker-run.sh restart
 
 # 进入容器调试
-./docker-run.sh shell
+./docker/docker-run.sh shell
 
 # 完全清理（包括数据）
-./docker-run.sh clean
+./docker/docker-run.sh clean
 ```
 
 ## 🔧 Docker Compose 部署
@@ -136,6 +136,7 @@ cd web-ssh-terminal
 
 ```bash
 # 使用docker-compose
+cd docker
 docker-compose up -d
 
 # 查看日志
@@ -149,6 +150,7 @@ docker-compose down
 
 ```bash
 # 启用Nginx代理（80端口访问）
+cd docker
 docker-compose --profile with-nginx up -d
 
 # 访问地址变为: http://localhost
@@ -234,7 +236,7 @@ docker system prune -a
 # 使用本地版本
 git clone https://github.com/ZengXitem/web-ssh-terminal.git
 cd web-ssh-terminal
-./docker-run.sh run
+./docker/docker-run.sh run
 ```
 
 #### 4. 容器启动失败
@@ -282,8 +284,8 @@ docker run --memory=512m --cpus=1.0 ...
 
 # 本地版本手动更新
 git pull
-./docker-run.sh clean
-./docker-run.sh run
+./docker/docker-run.sh clean
+./docker/docker-run.sh run
 ```
 
 ### 数据迁移
