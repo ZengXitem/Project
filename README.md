@@ -1,12 +1,80 @@
-# 🌐 Flask Web SSH 客户端
+# 🌐 Web SSH Terminal
 
-一个功能完整的基于Flask的纯Web SSH客户端，让你可以在浏览器中轻松连接和操作远程Linux/Ubuntu系统。
+> **一个功能完整的基于Flask的纯Web SSH客户端，让你可以在浏览器中轻松连接和操作远程Linux/Ubuntu系统。**
 
-![项目状态](https://img.shields.io/badge/状态-稳定运行-brightgreen)
-![Python版本](https://img.shields.io/badge/Python-3.13+-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-2.3+-green.svg)](https://flask.palletsprojects.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## ✨ 功能特性
+## 🧭 快速导航
+**第一次使用？** → [📚 快速入门指南](QUICK_START.md) | **项目概览** → [📊 完整概览](PROJECT_OVERVIEW.md) | **文档索引** → [🧭 项目导航](NAVIGATION.md) | **文件说明** → [📁 文件结构](FILE_DESCRIPTIONS.md)
+
+## 📋 快速导航
+
+| 🎯 我想要... | 📖 查看文档 | 🚀 直接操作 |
+|-------------|------------|------------|
+| **快速开始使用** | [快速入门指南](QUICK_START.md) | `python3 flask-start.py` |
+| **Docker部署** | [Docker部署指南](DOCKER_DEPLOY.md) | `./docker-run.sh run` |
+| **了解文件结构** | [文件说明文档](FILE_DESCRIPTIONS.md) | [项目结构](#-项目结构) |
+| **功能特性介绍** | [功能特性](#-功能特性) | [在线演示](http://localhost:5555) |
+| **遇到问题** | [故障排除](#-故障排除) | [常见问题解答](#常见问题解决方案) |
+| **技术架构** | [项目总结](PROJECT_SUMMARY.md) | [核心文件说明](FILE_DESCRIPTIONS.md#-核心文件详解) |
+| **API接口** | [API文档](#api接口) | [WebSocket事件](#websocket事件) |
+| **安全说明** | [安全配置](#安全说明) | [生产部署](#生产环境部署) |
+
+### 🎯 文档导航索引
+- **📚 [快速入门指南](QUICK_START.md)** - 3分钟快速上手
+- **📁 [文件说明文档](FILE_DESCRIPTIONS.md)** - 详细文件结构和作用
+- **🐳 [Docker部署指南](DOCKER_DEPLOY.md)** - 完整容器化部署方案
+- **📝 [项目技术总结](PROJECT_SUMMARY.md)** - 详细技术架构和实现
+- **🎉 [部署成功报告](DEPLOYMENT_SUCCESS.md)** - Docker部署状态确认
+
+## 🎯 项目简介
+
+### 这是什么？
+Web SSH Terminal 是一个**纯Web界面的SSH客户端**，无需安装任何客户端软件，直接在浏览器中连接和管理远程服务器。
+
+### 适用场景
+- 🏢 **企业环境**：统一的Web界面管理多台服务器
+- 🎓 **教育培训**：学生无需安装SSH客户端即可学习Linux
+- 🏠 **个人使用**：在任何设备的浏览器中管理个人服务器
+- 🌐 **远程办公**：通过Web界面安全访问公司服务器
+
+### 核心优势
+- ✅ **零客户端安装**：仅需浏览器即可使用
+- ✅ **跨平台支持**：Windows、macOS、Linux、移动设备
+- ✅ **连接管理**：保存和管理多个SSH连接配置
+- ✅ **实时终端**：完整的终端体验，支持颜色和交互
+- ✅ **安全可靠**：AES加密存储，安全认证
+
+## ⚡ 30秒快速开始
+
+### 方法一：一键启动（推荐）
+```bash
+# 克隆项目
+git clone https://github.com/ZengXitem/web-ssh-terminal.git
+cd web-ssh-terminal
+
+# 一键启动（自动安装依赖）
+python3 flask-start.py
+```
+**🎉 完成！** 浏览器会自动打开 http://localhost:5555
+
+### 方法二：Docker部署
+```bash
+# 克隆项目
+git clone https://github.com/ZengXitem/web-ssh-terminal.git
+cd web-ssh-terminal
+
+# Docker一键部署
+./docker-run.sh run
+```
+**🎉 完成！** 访问 http://localhost:5555
+
+---
+
+## 🌟 功能特性
 
 - 🌐 **纯Web界面**：基于Flask，无需前端构建，开箱即用
 - 🔐 **安全连接**：支持密码和私钥两种认证方式
@@ -255,14 +323,67 @@ sudo systemctl enable web-ssh
 sudo systemctl start web-ssh
 ```
 
-### Docker部署（可选）
-```dockerfile
-FROM python:3.13-slim
-WORKDIR /app
-COPY . .
-RUN pip install -r requirements.txt
-EXPOSE 5555
-CMD ["python3", "backend/app.py"]
+### Docker部署
+
+#### 方式一：本地代码部署 ⭐ **推荐**
+
+```bash
+# 克隆仓库
+git clone https://github.com/ZengXitem/web-ssh-terminal.git
+cd web-ssh-terminal
+
+# 一键部署
+./docker-run.sh run
+
+# 访问应用
+# http://localhost:5555
+```
+
+#### 方式二：Docker Compose部署
+
+```bash
+# 基础部署
+docker-compose up -d
+
+# 带Nginx反向代理部署（80端口访问）
+docker-compose --profile with-nginx up -d
+```
+
+#### 方式三：手动Docker部署
+
+```bash
+# 构建镜像
+docker build -t web-ssh-terminal .
+
+# 运行容器
+docker run -d \
+  --name web-ssh-terminal \
+  -p 5555:5555 \
+  -v ssh_data:/app/backend/instance \
+  --restart unless-stopped \
+  web-ssh-terminal
+```
+
+#### Docker常用命令
+
+```bash
+# 查看容器状态
+./docker-run.sh status
+
+# 查看日志
+./docker-run.sh logs
+
+# 停止容器
+./docker-run.sh stop
+
+# 重启容器
+./docker-run.sh restart
+
+# 进入容器调试
+./docker-run.sh shell
+
+# 清理所有资源
+./docker-run.sh clean
 ```
 
 ## 🌟 项目亮点
