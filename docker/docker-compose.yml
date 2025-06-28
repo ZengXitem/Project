@@ -15,6 +15,7 @@ services:
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
+      - SECRET_KEY=web-ssh-secret-key-change-in-production
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5555/"]

@@ -1,5 +1,5 @@
-# 使用官方Python 3.12 slim镜像作为基础镜像（更稳定）
-FROM python:3.12-slim
+# 使用官方Python 3.13 slim镜像作为基础镜像（更稳定）
+FROM python:3.13-slim
 
 # 设置工作目录
 WORKDIR /app
@@ -13,6 +13,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # 安装系统依赖
 RUN apt-get update && apt-get install -y \
     gcc \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # 复制依赖文件并安装Python依赖
@@ -39,5 +40,5 @@ EXPOSE 5555
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5555/ || exit 1
 
-# 启动命令
-CMD ["python3", "backend/app.py"] 
+# 初始化数据库并启动应用
+CMD ["sh", "-c", "cd backend && python3 init_db.py && python3 app.py"] 

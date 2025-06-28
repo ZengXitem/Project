@@ -74,6 +74,20 @@ def main():
     # 安装依赖
     install_dependencies()
     
+    print("\n🔧 初始化数据库...")
+    
+    # 初始化数据库
+    try:
+        os.chdir('backend')
+        result = subprocess.run([sys.executable, 'init_db.py'], capture_output=True, text=True, timeout=30)
+        if result.returncode == 0:
+            print("✅ 数据库初始化成功")
+        else:
+            print("⚠️  数据库初始化警告:", result.stderr)
+    except Exception as e:
+        print(f"⚠️  数据库初始化失败: {e}")
+        print("将尝试继续启动...")
+    
     print("\n🚀 启动Flask服务器...")
     
     # 启动浏览器（在后台线程中）
@@ -85,12 +99,13 @@ def main():
     print("🔗 Web SSH客户端: http://localhost:5555")
     print("=" * 50)
     print("\n🎉 浏览器将自动打开")
-    print("📝 现在可以创建SSH连接并测试了！")
+    print("📝 请先注册账户或使用默认账户:")
+    print("   用户名: admin")
+    print("   密码: admin123")
     print("\n按 Ctrl+C 停止服务")
     
     try:
         # 启动Flask应用
-        os.chdir('backend')
         subprocess.run([sys.executable, 'app.py'], check=True)
     except KeyboardInterrupt:
         print("\n🛑 正在停止服务...")

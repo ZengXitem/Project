@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,16 +10,28 @@
     <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
     <!-- 顶部导航栏 -->
     <div class="header">
         <h1>🖥️ Web SSH 客户端</h1>
         <div class="header-actions">
-            <button class="btn btn-primary" onclick="showNewConnectionModal()">+ 新建连接</button>
-            <button class="btn btn-outline" onclick="toggleSidebar()" id="toggleSidebarBtn">📋 连接列表</button>
+            <!-- 登录状态下显示的按钮 -->
+            <div class="user-actions" id="userActions" style="display: none;">
+                <span class="welcome-text">欢迎，<span id="currentUsername"></span></span>
+                <button class="btn btn-primary" onclick="showNewConnectionModal()">+ 新建连接</button>
+                <button class="btn btn-outline" onclick="toggleSidebar()" id="toggleSidebarBtn">📋 连接列表</button>
+                <button class="btn btn-secondary" onclick="logout()">退出登录</button>
+            </div>
+
+            <!-- 未登录状态下显示的按钮 -->
+            <div class="auth-actions" id="authActions">
+                <button class="btn btn-outline" onclick="showLoginModal()">登录</button>
+                <button class="btn btn-primary" onclick="showRegisterModal()">注册</button>
+            </div>
         </div>
     </div>
-    
+
     <!-- 主容器 -->
     <div class="main-container">
         <!-- 左侧连接列表栏 -->
@@ -34,7 +47,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- 右侧终端区域 -->
         <div class="terminal-container">
             <div class="terminal-header">
@@ -49,7 +62,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- 新建连接模态框 -->
     <div class="modal" id="newConnectionModal">
         <div class="modal-content">
@@ -62,7 +75,7 @@
                     <label><span class="required">*</span> 连接名称</label>
                     <input type="text" id="connectionName" placeholder="为这个连接起个名字" required>
                 </div>
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label><span class="required">*</span> 主机地址</label>
@@ -78,12 +91,12 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label><span class="required">*</span> 用户名</label>
                     <input type="text" id="username" value="admin" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label>认证方式</label>
                     <div class="auth-options">
@@ -99,7 +112,7 @@
                         </label>
                     </div>
                 </div>
-                
+
                 <div id="passwordAuth" class="auth-method">
                     <div class="form-group">
                         <label>密码</label>
@@ -111,21 +124,21 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div id="keyAuth" class="auth-method hidden">
                     <div class="form-group">
                         <label>私钥内容</label>
                         <textarea id="privateKey" placeholder="粘贴私钥内容..."></textarea>
                     </div>
                 </div>
-                
+
                 <div class="security-notice">
                     <div class="notice-icon">ℹ️</div>
                     <div class="notice-text">
                         密码和私钥将使用加密算法安全存储，请确保只在受信任的环境中使用。
                     </div>
                 </div>
-                
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="hideNewConnectionModal()">取消</button>
                     <button type="button" class="btn btn-test" onclick="testConnection()">测试连接</button>
@@ -136,6 +149,94 @@
         </div>
     </div>
 
+    <!-- 登录模态框 -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>用户登录</h3>
+                <button class="close-btn" onclick="hideLoginModal()">&times;</button>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label><span class="required">*</span> 用户名或邮箱</label>
+                    <input type="text" id="loginUsername" placeholder="输入用户名或邮箱" required>
+                </div>
+
+                <div class="form-group">
+                    <label><span class="required">*</span> 密码</label>
+                    <div class="password-input-container">
+                        <input type="password" id="loginPassword" placeholder="输入密码" required>
+                        <button type="button" class="password-toggle" onclick="toggleLoginPasswordVisibility()">
+                            <span class="eye-icon">👁</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideLoginModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">登录</button>
+                </div>
+
+                <div class="form-footer">
+                    <p>还没有账户？<a href="javascript:void(0)" onclick="switchToRegister()">立即注册</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>用户注册</h3>
+                <button class="close-btn" onclick="hideRegisterModal()">&times;</button>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label><span class="required">*</span> 用户名</label>
+                    <input type="text" id="registerUsername" placeholder="输入用户名（至少3个字符）" required>
+                    <div class="input-hint">用户名只能包含字母、数字和下划线</div>
+                </div>
+
+                <div class="form-group">
+                    <label><span class="required">*</span> 邮箱</label>
+                    <input type="email" id="registerEmail" placeholder="输入邮箱地址" required>
+                </div>
+
+                <div class="form-group">
+                    <label><span class="required">*</span> 密码</label>
+                    <div class="password-input-container">
+                        <input type="password" id="registerPassword" placeholder="输入密码（至少6个字符）" required>
+                        <button type="button" class="password-toggle" onclick="toggleRegisterPasswordVisibility()">
+                            <span class="eye-icon">👁</span>
+                        </button>
+                    </div>
+                    <div class="input-hint">密码至少需要6个字符</div>
+                </div>
+
+                <div class="form-group">
+                    <label><span class="required">*</span> 确认密码</label>
+                    <div class="password-input-container">
+                        <input type="password" id="confirmPassword" placeholder="再次输入密码" required>
+                        <button type="button" class="password-toggle" onclick="toggleConfirmPasswordVisibility()">
+                            <span class="eye-icon">👁</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideRegisterModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">注册</button>
+                </div>
+
+                <div class="form-footer">
+                    <p>已有账户？<a href="javascript:void(0)" onclick="switchToLogin()">立即登录</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
-</html> 
+
+</html>

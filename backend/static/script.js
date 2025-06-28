@@ -5,19 +5,46 @@ let connections = [];
 let isConnected = false;
 let currentConnectionId = null;
 let sidebarVisible = true;
+let currentUser = null;
+let isAuthenticated = false;
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
-    initializeSocket();
-    initializeTerminal();
-    loadConnections();
-    
+    // 先检查认证状态，然后初始化其他组件
+    checkAuthStatus().then(() => {
+        if (isAuthenticated) {
+            initializeSocket();
+            initializeTerminal();
+            loadConnections();
+        } else {
+            initializeSocket();
+            initializeTerminal();
+            // 显示登录提示
+            terminal.write('请先登录以使用SSH连接功能...\r\n');
+        }
+    });
+
+    // 绑定事件监听器
     document.getElementById('connectionForm').addEventListener('submit', saveConnection);
-    
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    document.getElementById('registerForm').addEventListener('submit', handleRegister);
+
     // 点击模态框背景关闭
     document.getElementById('newConnectionModal').addEventListener('click', function(e) {
         if (e.target === this) {
             hideNewConnectionModal();
+        }
+    });
+
+    document.getElementById('loginModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideLoginModal();
+        }
+    });
+
+    document.getElementById('registerModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideRegisterModal();
         }
     });
 });
@@ -25,36 +52,36 @@ document.addEventListener('DOMContentLoaded', function() {
 // 初始化Socket连接
 function initializeSocket() {
     socket = io();
-    
+
     socket.on('connect', function() {
         console.log('Socket连接成功');
     });
-    
+
     socket.on('ssh_connected', function(data) {
         isConnected = true;
         updateConnectionStatus('已连接', true);
         updateTerminalTitle(data.connection_name || data.host, data.username, data.host);
         document.getElementById('disconnectBtn').classList.remove('hidden');
         terminal.write('\r\n✅ 连接成功! 主机: ' + data.host + '\r\n');
-        
+
         // 更新连接状态指示器
         if (currentConnectionId) {
             updateConnectionIndicator(currentConnectionId, true);
         }
-        
+
         // 隐藏新建连接模态框
         hideNewConnectionModal();
     });
-    
+
     socket.on('ssh_output', function(data) {
         terminal.write(data.data);
     });
-    
+
     socket.on('ssh_error', function(data) {
         isConnected = false;
         updateConnectionStatus('连接错误: ' + data.error, false);
         terminal.write('\r\n❌ 错误: ' + data.error + '\r\n');
-        
+
         // 显示故障排除提示
         if (data.error.includes('认证失败') || data.error.includes('Authentication failed')) {
             terminal.write('\r\n💡 故障排除提示:\r\n');
@@ -65,20 +92,20 @@ function initializeSocket() {
             terminal.write('5. 如果服务器只允许密钥认证，请使用私钥方式\r\n');
         }
     });
-    
+
     socket.on('ssh_disconnected', function() {
         isConnected = false;
         updateConnectionStatus('未连接', false);
         updateTerminalTitle('SSH 终端');
         document.getElementById('disconnectBtn').classList.add('hidden');
         terminal.write('\r\n🔌 连接已断开\r\n');
-        
+
         // 更新连接状态指示器
         if (currentConnectionId) {
             updateConnectionIndicator(currentConnectionId, false);
             currentConnectionId = null;
         }
-        
+
         // 清除活跃状态
         document.querySelectorAll('.connection-item.active').forEach(item => {
             item.classList.remove('active');
@@ -96,14 +123,14 @@ function initializeTerminal() {
             foreground: '#ffffff'
         }
     });
-    
+
     terminal.open(document.getElementById('terminal'));
     terminal.write('Web SSH 客户端已就绪，请建立连接...\r\n');
-    
+
     // 监听键盘输入
     terminal.onData(function(data) {
         if (isConnected) {
-            socket.emit('ssh_command', {command: data});
+            socket.emit('ssh_command', { command: data });
         }
     });
 }
@@ -132,7 +159,7 @@ function renderConnectionsList() {
         `;
         return;
     }
-    
+
     listElement.innerHTML = connections.map(conn => `
         <div class="connection-item" onclick="connectSaved(${conn.id})" oncontextmenu="showConnectionMenu(event, ${conn.id})">
             <div class="connection-info">
@@ -149,7 +176,7 @@ function toggleAuthMethod() {
     const authMethod = document.querySelector('input[name="authMethod"]:checked').value;
     const passwordAuth = document.getElementById('passwordAuth');
     const keyAuth = document.getElementById('keyAuth');
-    
+
     if (authMethod === 'password') {
         passwordAuth.classList.remove('hidden');
         keyAuth.classList.add('hidden');
@@ -164,10 +191,10 @@ function adjustPort(delta) {
     const portInput = document.getElementById('port');
     let currentPort = parseInt(portInput.value) || 22;
     let newPort = currentPort + delta;
-    
+
     if (newPort < 1) newPort = 1;
     if (newPort > 65535) newPort = 65535;
-    
+
     portInput.value = newPort;
 }
 
@@ -175,7 +202,7 @@ function adjustPort(delta) {
 function togglePasswordVisibility() {
     const passwordInput = document.getElementById('password');
     const eyeIcon = document.querySelector('.eye-icon');
-    
+
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
         eyeIcon.textContent = '🙈';
@@ -195,44 +222,44 @@ function testConnection() {
         password: authMethod === 'password' ? document.getElementById('password').value : '',
         private_key: authMethod === 'key' ? document.getElementById('privateKey').value : ''
     };
-    
+
     if (!connectionData.host || !connectionData.username) {
         showInputError('hostError', '请填写主机地址和用户名');
         return;
     }
-    
+
     const testBtn = document.querySelector('.btn-test');
     const originalText = testBtn.textContent;
     testBtn.textContent = '测试中...';
     testBtn.disabled = true;
-    
+
     // 调用后端测试连接API
     fetch('/api/connections/test', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(connectionData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        testBtn.textContent = originalText;
-        testBtn.disabled = false;
-        
-        if (data.success) {
-            // 连接成功
-            showTestResult(true, data.message, data.system_info, data.details);
-        } else {
-            // 连接失败
-            showTestResult(false, data.error, null, null, data.suggestions);
-        }
-    })
-    .catch(error => {
-        testBtn.textContent = originalText;
-        testBtn.disabled = false;
-        console.error('测试连接失败:', error);
-        showTestResult(false, '网络错误：无法连接到服务器', null, null, ['检查网络连接', '确认服务器运行正常']);
-    });
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(connectionData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            testBtn.textContent = originalText;
+            testBtn.disabled = false;
+
+            if (data.success) {
+                // 连接成功
+                showTestResult(true, data.message, data.system_info, data.details);
+            } else {
+                // 连接失败
+                showTestResult(false, data.error, null, null, data.suggestions);
+            }
+        })
+        .catch(error => {
+            testBtn.textContent = originalText;
+            testBtn.disabled = false;
+            console.error('测试连接失败:', error);
+            showTestResult(false, '网络错误：无法连接到服务器', null, null, ['检查网络连接', '确认服务器运行正常']);
+        });
 }
 
 // 显示测试结果
@@ -589,4 +616,303 @@ function showConnectionMenu(event, connectionId) {
     if (confirm('确定要删除这个连接吗？')) {
         deleteConnection(connectionId);
     }
-} 
+}
+
+// ========== 用户认证相关函数 ==========
+
+// 检查用户认证状态
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/auth/check');
+        const data = await response.json();
+        
+        if (data.authenticated) {
+            isAuthenticated = true;
+            currentUser = data.user;
+            showUserInterface();
+        } else {
+            isAuthenticated = false;
+            currentUser = null;
+            showAuthInterface();
+        }
+    } catch (error) {
+        console.error('检查认证状态失败:', error);
+        isAuthenticated = false;
+        showAuthInterface();
+    }
+}
+
+// 显示用户界面（登录后）
+function showUserInterface() {
+    document.getElementById('userActions').style.display = 'flex';
+    document.getElementById('authActions').style.display = 'none';
+    document.getElementById('currentUsername').textContent = currentUser.username;
+    
+    // 重新加载连接列表
+    if (typeof loadConnections === 'function') {
+        loadConnections();
+    }
+}
+
+// 显示认证界面（未登录）
+function showAuthInterface() {
+    document.getElementById('userActions').style.display = 'none';
+    document.getElementById('authActions').style.display = 'flex';
+    
+    // 清空连接列表
+    connections = [];
+    renderConnectionsList();
+}
+
+// 处理用户登录
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!username || !password) {
+        alert('请输入用户名和密码');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            isAuthenticated = true;
+            currentUser = data.user;
+            showUserInterface();
+            hideLoginModal();
+            alert('登录成功！');
+            
+            // 重新初始化
+            loadConnections();
+            terminal.clear();
+            terminal.write('✅ 登录成功，欢迎使用 Web SSH 客户端！\r\n');
+        } else {
+            alert('登录失败: ' + data.error);
+        }
+    } catch (error) {
+        console.error('登录请求失败:', error);
+        alert('登录失败，请稍后重试');
+    }
+}
+
+// 处理用户注册
+async function handleRegister(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('registerUsername').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // 客户端验证
+    if (!username || !email || !password || !confirmPassword) {
+        alert('请填写所有必填字段');
+        return;
+    }
+    
+    if (username.length < 3) {
+        alert('用户名至少需要3个字符');
+        return;
+    }
+    
+    if (password.length < 6) {
+        alert('密码至少需要6个字符');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        alert('两次输入的密码不一致');
+        return;
+    }
+    
+    // 简单的邮箱验证
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('请输入有效的邮箱地址');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            isAuthenticated = true;
+            currentUser = data.user;
+            showUserInterface();
+            hideRegisterModal();
+            alert('注册成功！欢迎使用 Web SSH 客户端！');
+            
+            // 重新初始化
+            loadConnections();
+            terminal.clear();
+            terminal.write('✅ 注册成功，欢迎使用 Web SSH 客户端！\r\n');
+        } else {
+            alert('注册失败: ' + data.error);
+        }
+    } catch (error) {
+        console.error('注册请求失败:', error);
+        alert('注册失败，请稍后重试');
+    }
+}
+
+// 用户登出
+async function logout() {
+    if (!confirm('确定要退出登录吗？')) {
+        return;
+    }
+    
+    try {
+        // 先断开SSH连接
+        if (isConnected) {
+            disconnect();
+        }
+        
+        const response = await fetch('/api/logout', {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            isAuthenticated = false;
+            currentUser = null;
+            showAuthInterface();
+            alert('已成功退出登录');
+            
+            terminal.clear();
+            terminal.write('已退出登录，请重新登录以使用SSH连接功能...\r\n');
+        } else {
+            alert('退出登录失败');
+        }
+    } catch (error) {
+        console.error('退出登录失败:', error);
+        alert('退出登录失败，请稍后重试');
+    }
+}
+
+// 显示登录模态框
+function showLoginModal() {
+    document.getElementById('loginModal').classList.add('show');
+    document.getElementById('loginUsername').focus();
+}
+
+// 隐藏登录模态框
+function hideLoginModal() {
+    document.getElementById('loginModal').classList.remove('show');
+    document.getElementById('loginForm').reset();
+}
+
+// 显示注册模态框
+function showRegisterModal() {
+    document.getElementById('registerModal').classList.add('show');
+    document.getElementById('registerUsername').focus();
+}
+
+// 隐藏注册模态框
+function hideRegisterModal() {
+    document.getElementById('registerModal').classList.remove('show');
+    document.getElementById('registerForm').reset();
+}
+
+// 在登录和注册模态框之间切换
+function switchToRegister() {
+    hideLoginModal();
+    showRegisterModal();
+}
+
+function switchToLogin() {
+    hideRegisterModal();
+    showLoginModal();
+}
+
+// 切换密码可见性 - 登录界面
+function toggleLoginPasswordVisibility() {
+    const passwordInput = document.getElementById('loginPassword');
+    const eyeIcon = passwordInput.parentElement.querySelector('.eye-icon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.textContent = '🙈';
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.textContent = '👁';
+    }
+}
+
+// 切换密码可见性 - 注册界面
+function toggleRegisterPasswordVisibility() {
+    const passwordInput = document.getElementById('registerPassword');
+    const eyeIcon = passwordInput.parentElement.querySelector('.eye-icon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.textContent = '🙈';
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.textContent = '👁';
+    }
+}
+
+// 切换确认密码可见性
+function toggleConfirmPasswordVisibility() {
+    const passwordInput = document.getElementById('confirmPassword');
+    const eyeIcon = passwordInput.parentElement.querySelector('.eye-icon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.textContent = '🙈';
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.textContent = '👁';
+    }
+}
+
+// 修改原有的 loadConnections 函数，添加认证检查
+const originalLoadConnections = loadConnections;
+loadConnections = function() {
+    if (!isAuthenticated) {
+        console.log('用户未登录，跳过加载连接');
+        return;
+    }
+    
+    fetch('/api/connections', {
+        method: 'GET',
+        credentials: 'same-origin'  // 确保发送session cookie
+    })
+    .then(response => {
+        if (response.status === 401) {
+            // 未授权，需要重新登录
+            isAuthenticated = false;
+            showAuthInterface();
+            alert('登录已过期，请重新登录');
+            return [];
+        }
+        return response.json();
+    })
+    .then(data => {
+        connections = data;
+        renderConnectionsList();
+    })
+    .catch(error => {
+        console.error('加载连接失败:', error);
+        alert('加载连接失败: ' + error.message);
+    });
+};
