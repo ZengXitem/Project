@@ -1,5 +1,5 @@
-# 使用官方Python 3.12 slim镜像作为基础镜像（更稳定）
-FROM python:3.12-slim
+# 使用官方Python 3.13 slim镜像作为基础镜像（更稳定）
+FROM python:3.13-slim
 
 # 设置工作目录
 WORKDIR /app
