@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   web-ssh-terminal:
-    build: .
+    build: 
+      # 上级目录
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: web-ssh-terminal
     ports:
       - "5555:5555"
